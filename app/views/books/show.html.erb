@@ -1,0 +1,81 @@
+<div class="container">
+	<div class="row">
+		<div class="col-xs-3">
+
+			<%= render 'users/profile', user: @user, book: @book %>
+
+		</div>
+
+		<div class="col-xs-9">
+			<h2>Book detail</h2>
+
+			<table class="table">
+				<tr>
+					<td>
+						<%= link_to (@bookx.user) do %>
+						<%= attachment_image_tag(@bookx.user, :profile_image, :fill, 100, 100, fallback: "no-image-mini.jpg") %><br>
+						<%= @bookx.user.name %>
+						<% end %>
+					</td>
+					<td><%= link_to @bookx.title, @bookx %></td>
+					<td><%= @bookx.body %></td>
+					<% if @user.id == current_user.id %>
+					<td><%= link_to "Edit",edit_book_path(@bookx), class: "btn-sm btn-success edit_book_#{@bookx.id}" %></td>
+					<td><%= link_to "Destroy",@books, method: :delete, data: {confirm: "本当に削除してもよろしいですか？"}, class: "btn-sm btn-danger destroy_book_#{@bookx.id}" %></td>
+					<% end %>
+					<td>
+						<% if @bookx.favorited_by?(current_user) %>
+						<%= link_to book_favorites_path(@bookx), method: :delete do %>
+						<i class="fa fa-heart" aria-hidden="true" style="color: red;"></i>
+						<%= @bookx.favorites.count %>
+						<% end %>
+						<% else %>
+						<%= link_to book_favorites_path(@bookx), method: :post do %>
+						<i class="fa fa-heart-o" aria-hidden="true"></i>
+						<%= @bookx.favorites.count %>
+						<% end %>
+						<% end %></td>
+						<td> <i class="fa fa-comment"></i>
+							<a href="#comments"><%= @bookx.book_comments.count %></a>
+						</li></td>
+					</tr>
+				</table>
+
+				<%= form_for [@bookx, @book_comment] do |f| %>
+				<div class="row">
+					<div class="col-sm-12">
+						<%= f.text_area :comment, rows:'5', class: "form-control",placeholder: "コメントをここに" %>
+					</div>
+				</div>
+				<%= f.submit "送信する", class: "btn btn-lg btn-base-1 mt-20 pull-right" %>
+				<% end %>
+
+				<% @bookx.book_comments.each do |book_comment| %>
+				<li class="comment">
+					<div class="comment-body bb">
+						<div class="comment-avatar">
+							<div class="avatar">
+								<%= image_tag('no_image.jpg', style: "width: 60px; height: 60px;") %>
+							</div>
+						</div>
+						<div class="comment-text">
+							<div class="comment-author clearfix">
+								<a href="#" class="link-author"><%= book_comment.user.name %></a>
+								<span class="comment-meta">
+									<span class="comment-date"><%= book_comment.created_at.strftime('%Y/%m/%d') %></span>
+								</span>
+							</div>
+							<div class="comment-entry"><%= book_comment.comment %></div>
+							<% if current_user.id == book_comment.user_id %>
+							<%= link_to book_book_comments_path(@bookx), method: :delete do %>
+							<p>削除する</p>
+							<% end %>
+							<% end %>
+						</div>
+					</div>
+				</li>
+				<% end %>
+
+			</div>
+		</div>
+	</div>
